@@ -109,6 +109,7 @@ export default {
           if (item) this.toBeCalled.push({id: idx, name: item})
         })
         this.called = []
+        this.disabled = this.toBeCalled.length == 0
       }
     },
     doCall() {
