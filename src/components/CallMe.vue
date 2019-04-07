@@ -5,6 +5,7 @@
     color="cyan"
     dark
     icons-and-text
+    v-model="curTab"
     @change="doTab"
   >
     <v-tabs-slider color="yellow"></v-tabs-slider>
@@ -23,7 +24,7 @@
 
     <v-tab-item value="inserisci">
       <v-container>
-        <v-textarea v-model="names" placeholder="Scrivi qui i nomi dei bambini, uno per linea" autofocus clearable auto-grow></v-textarea>
+        <v-textarea @change="handleNames" v-model="names" placeholder="Scrivi qui i nomi dei bambini, uno per linea" autofocus clearable auto-grow></v-textarea>
       </v-container>
     </v-tab-item>
 
@@ -38,7 +39,8 @@
       </v-card-text></v-card> 
       </v-flex>
       <v-flex xs2>
-        <v-btn @click="doCall" :disabled="disabled" alig>Chiama!</v-btn>
+        <v-btn @click="doCall" color="info" block :disabled="disabled">Chiama</v-btn>
+        <v-btn @click="handleNames" color="info" block outline>Ricomincia</v-btn>
       </v-flex>
       <v-flex xs4>
       <v-card><v-card-title>Chiamati</v-card-title><v-card-text>
@@ -94,21 +96,50 @@ export default {
       this.voices = found.filter(voice => voice.lang == 'it-IT')
     })
   },
+  mounted() {
+    if (localStorage.getItem('cb_satus')) {
+       try {
+        const status = JSON.parse(localStorage.getItem('cb_satus'))
+        this.names = status.names
+        this.toBeCalled = status.toBeCalled
+        this.called = status.called
+      } catch(e) {
+        localStorage.removeItem('cb_satus')
+      }
+    }
+    if (this.names == '') {
+      this.names = 'Aldo\nGiovanni\nGiacomo'
+      this.handleNames()
+    }
+  },
   data() {return {
-    names: 'Aldo\nGiovanni\nGiacomo',
+    names: '',
     toBeCalled: [],
     called: [],
     voices: [],
-    disabled: false
+    disabled: false,
+    curTab: 'chiama'
   }},
   methods: {
+    saveStatus() {
+      const parsed = JSON.stringify({
+        names: this.names,
+        toBeCalled: this.toBeCalled,
+        called: this.called
+      })
+      localStorage.setItem('cb_satus', parsed)
+    },
+    handleNames() {
+      this.toBeCalled = []
+      this.names.split(/\r?\n/).forEach((item, idx) => {
+        if (item) this.toBeCalled.push({id: idx, name: item})
+      })
+      this.called = []
+      this.saveStatus()
+      this.disabled = this.toBeCalled.length == 0
+    },
     doTab(name) {
       if (name == 'chiama') {
-        this.toBeCalled = []
-        this.names.split(/\r?\n/).forEach((item, idx) => {
-          if (item) this.toBeCalled.push({id: idx, name: item})
-        })
-        this.called = []
         this.disabled = this.toBeCalled.length == 0
       }
     },
@@ -121,6 +152,7 @@ export default {
         speak(this.voices[0], item.name, () => {
           this.called.push(item)
           this.toBeCalled.splice(idx, 1)
+          this.saveStatus()
           if (this.toBeCalled.length > 0) this.disabled = false
         })
       }
@@ -140,6 +172,7 @@ export default {
         else
           this.called.splice(addedIndex, 0, payload)
       }
+      this.saveStatus()
       this.disabled = this.toBeCalled.length == 0
     },
     getChildPayload(groupIndex, itemIndex) {
@@ -150,5 +183,4 @@ export default {
 </script>
 
 <style scoped>
-  span.name {padding: 1em; border: 1pt dotted black;}
 </style>
