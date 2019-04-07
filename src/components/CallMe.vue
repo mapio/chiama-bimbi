@@ -63,13 +63,42 @@
 <script>
 import {Container, Draggable} from 'vue-smooth-dnd'
 
+const getVoices = () => {
+	return new Promise(resolve => {
+		let voices = speechSynthesis.getVoices()
+		if (voices.length) resolve(voices)
+		speechSynthesis.onvoiceschanged = () => resolve(speechSynthesis.getVoices())
+	})
+}
+
+function speak(voice, text, next) {
+  window.speechSynthesis.cancel()
+  let ssu = new SpeechSynthesisUtterance(text)
+  ssu.voice = voice
+  window.speechSynthesis.speak(ssu)
+  function waitssu() {
+    if (!(window.speechSynthesis.speaking || window.speechSynthesis.pending)) {
+      next()
+      return
+    }
+    window.setTimeout(waitssu, 200)
+  }
+  waitssu();
+}
+
 export default {
   components: {Container, Draggable},
   name: 'CallMe',
+  created() {
+    getVoices().then(found => {
+      this.voices = found.filter(voice => voice.lang == 'it-IT')
+    })
+  },
   data() {return {
-    names: 'uno\ndue\ntre\nquattto\ncinque',
+    names: 'Aldo\nGiovanni\nGiacomo',
     toBeCalled: [],
-    called: []
+    called: [],
+    voices: []
   }},
   methods: {
     doTab(name) {
@@ -85,8 +114,11 @@ export default {
       const n = this.toBeCalled.length
       if (n > 0) {
         const idx = Math.floor(Math.random() * n)
-        this.called.push(this.toBeCalled[idx])
-        this.toBeCalled.splice(idx, 1)
+        const item = this.toBeCalled[idx]
+        speak(this.voices[0], item.name, () => {
+          this.called.push(item)
+          this.toBeCalled.splice(idx, 1)
+        })
       }
     },
     onDrop(idx, {removedIndex, addedIndex, payload}) {
