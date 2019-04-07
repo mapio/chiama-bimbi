@@ -38,7 +38,7 @@
       </v-card-text></v-card> 
       </v-flex>
       <v-flex xs2>
-        <v-btn @click="doCall" alig>Chiama!</v-btn>
+        <v-btn @click="doCall" :disabled="disabled" alig>Chiama!</v-btn>
       </v-flex>
       <v-flex xs4>
       <v-card><v-card-title>Chiamati</v-card-title><v-card-text>
@@ -98,7 +98,8 @@ export default {
     names: 'Aldo\nGiovanni\nGiacomo',
     toBeCalled: [],
     called: [],
-    voices: []
+    voices: [],
+    disabled: false
   }},
   methods: {
     doTab(name) {
@@ -111,6 +112,7 @@ export default {
       }
     },
     doCall() {
+      this.disabled = true
       const n = this.toBeCalled.length
       if (n > 0) {
         const idx = Math.floor(Math.random() * n)
@@ -118,6 +120,7 @@ export default {
         speak(this.voices[0], item.name, () => {
           this.called.push(item)
           this.toBeCalled.splice(idx, 1)
+          if (this.toBeCalled.length > 0) this.disabled = false
         })
       }
     },
@@ -136,6 +139,7 @@ export default {
         else
           this.called.splice(addedIndex, 0, payload)
       }
+      this.disabled = this.toBeCalled.length == 0
     },
     getChildPayload(groupIndex, itemIndex) {
       return groupIndex == 0 ? this.toBeCalled[itemIndex] : this.called[itemIndex]
