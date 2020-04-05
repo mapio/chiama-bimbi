@@ -19,7 +19,10 @@ import CallMe from './components/CallMe'
 
 export default {
   name: 'App',
+
   components: { CallMe },
-  data() { return {}}
-}
+
+  data: () => ({}),
+
+};
 </script>

@@ -2,7 +2,7 @@
   <v-tabs
     show-arrows
     centered
-    color="cyan"
+    background-color="cyan"
     dark
     icons-and-text
     v-model="curTab"
@@ -11,15 +11,15 @@
     <v-tabs-slider color="yellow"></v-tabs-slider>
 
     <v-tab href="#inserisci">
-      Inserisci i nomi <v-icon>group_add</v-icon>
+      Inserisci i nomi <v-icon>mdi-account-cog</v-icon>
     </v-tab>
 
     <v-tab href="#chiama">
-      Chiama! <v-icon>record_voice_over</v-icon>
+      Chiama! <v-icon>mdi-account-voice</v-icon>
     </v-tab>
 
     <v-tab href="#info">
-      Informazioni <v-icon>info</v-icon>
+      Informazioni <v-icon>mdi-alert-circle</v-icon>
     </v-tab>
 
     <v-tab-item value="inserisci">
@@ -36,11 +36,11 @@
         <Container group-name="names" @drop="rap => onDrop(0, rap)" :get-child-payload="itemIndex => getChildPayload(0, itemIndex)">
           <Draggable v-for="item in toBeCalled" :key="item.id"><v-chip color="green">{{item.name}}</v-chip></Draggable>
         </Container>
-      </v-card-text></v-card> 
+      </v-card-text></v-card>
       </v-flex>
       <v-flex xs2>
         <v-btn @click="doCall" color="info" block :disabled="disabled">Chiama</v-btn>
-        <v-btn @click="handleNames" color="info" block outline>Ricomincia</v-btn>
+        <v-btn @click="handleNames" color="info" block outlined>Ricomincia</v-btn>
       </v-flex>
       <v-flex xs4>
       <v-card><v-card-title>Chiamati</v-card-title><v-card-text>
@@ -55,7 +55,7 @@
 
     <v-tab-item value="info">
       <v-container>
-        Info… 
+        Info…
       </v-container>
     </v-tab-item>
 
